@@ -12,7 +12,16 @@ class CVModelSelection:
 
     # --- generate `n_folds` number of folds
     def generate_folds(self,n_folds):
-        pass
+        # using vlsplit to split the data in n_folds
+        _X_splits = np.vsplit(self.X, n_folds)
+
+        # since data is only is 1-D in Y hence, to apply vstack we need to add a simple axis X
+        # now once the vtsack is applied we revert the shape of splits to 1-D space
+        _y_splits = list(map(lambda x: x.reshape(-1), np.vsplit(np.reshape(self.y, newshape=[-1,1]),5)))
+
+        # return stacked data (X_splits and y_splits)
+        return zip(_X_splits, _y_splits)
+
     #
 
     # --- perform grid search: assumes folds exist! This method should return the best set of hyperparameters: use mean-squared error wrt withheld data
