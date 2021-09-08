@@ -15,7 +15,6 @@ class Kernel:
 
     # --- form, and return, the posterior mean, conditioned on X_star: a set of data points
     def form_posterior_mean(self,X_star):
-
         # compute K_star
         K_star = self.kernel(X_star,self.X)
         
@@ -28,14 +27,26 @@ class Kernel:
 
     # --- form, and return, the posterior covariance, conditioned on X_star
     def form_posterior_covariance(self,X_star):
-        pass
+        K_star_star = self.kernel(X_star, X_star)
+        K_star = self.kernel(X_star, self.X)
+
+        _cov = K_star_star - K_star@np.linalg.inv(self.K)@K_star.T
+
+
+        return _cov
+
     #
 
     # --- draw samples from the posterior, conditioned on X_star
     #   (1) n_draws is a positive integer, indicating the number of draws to make
     #   (2) epsilon is a small number to ensure the posterior covariance is not ill-conditioned
     def sample_from_gp(self,X_star,n_draws=1,epsilon=1e-8):
-        pass
+        _mean = self.form_posterior_mean(X_star)
+        _cov = self.form_posterior_covariance(X_star)
+
+        _draws = np.random.normal(_mean, _cov, size=n_draws)
+
+        return _draws + epsilon
     #
 
     # --- this is an example kernel: a linear one!
