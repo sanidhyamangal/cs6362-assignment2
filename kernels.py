@@ -10,11 +10,20 @@ class Kernel:
         self.X = X
         self.y = y
         self.d,self.n = self.X.shape
+        self.K = None
     #
 
     # --- form, and return, the posterior mean, conditioned on X_star: a set of data points
     def form_posterior_mean(self,X_star):
-        pass
+
+        # compute K_star
+        K_star = self.kernel(X_star,self.X)
+        
+        # compute mean
+        _mean = K_star@np.linalg.inv(self.K)@self.y
+
+        return _mean
+
     #
 
     # --- form, and return, the posterior covariance, conditioned on X_star
@@ -45,12 +54,15 @@ class SquaredExponentialKernel(Kernel):
         # init hyper params
         self.length_scale, self.noise_variance = length_scale, noise_variance
 
+        # init kernel in training mode
+        self.K = self.kernel(self.X, self.X, True)
+
     #
 
     # --- compute squared exponential kernel between two data matrices: X_1 and X_2
     #   (1) is_train_kernel is a boolean flag indicating whether we are computing the kernel on _just_ the training data,
     #       in which case we add the noise variance to the diagonal
-    def kernel(self,X_1,X_2,is_train_kernel):
+    def kernel(self,X_1,X_2,is_train_kernel=False):
         # To compute the square kernel we will use vector form and compute the eucledian distance using following formulae
         # (a-b)^2 = a^2 + b^2 - 2ab
         eculedian_distance = np.sum(X_1**2,axis=1).reshape(-1,1) + np.sum(X_2**2,axis=1) - 2*X_1@X_2.T
@@ -70,12 +82,12 @@ class SquaredExponentialKernel(Kernel):
         return _kernel
     #
 
-    def form_posterior_mean(self, X_star):
-        # compute K_star
-        K_star = self.kernel(X_star,self.X)
+    # def form_posterior_mean(self, X_star):
+    #     # compute K_star
+    #     K_star = self.kernel(X_star,self.X)
         
-        # compute mean
-        _mean = K_star@np.linalg.inv(self.K)*self.y
+    #     # compute mean
+    #     _mean = K_star@np.linalg.inv(self.K)*self.y
 
 
 #
