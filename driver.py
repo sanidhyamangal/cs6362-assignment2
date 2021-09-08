@@ -41,9 +41,11 @@ if __name__=='__main__':
     # (4) construct kernel on full dataset (X,y) from above found hyperparameters, compute posterior mean from X_test, call `evaluate_test` function above with mean
     X_test = np.load('data/X_test.npy')
 
+    kernel = SquaredExponentialKernel(X.T, y, 0.9, 3.98)
+
     # --- uncomment this out once you have your code working to see random draws (and mean) from the posterior
     # ---> the below assumes the presence of a `kernel` variable
-    '''
+    """
     res = 64
     x_samples = np.linspace(-.9,.9,res)
     y_samples = np.linspace(-.9,.9,res)
@@ -51,9 +53,10 @@ if __name__=='__main__':
     x_grid,y_grid = np.meshgrid(x_samples,y_samples,indexing='ij')
     main_grid = np.stack((x_grid,y_grid),axis=0)
 
-    field_mean,field_draws = kernel.sample_from_gp(main_grid.reshape(2,-1),n_draws=8)
+    field_mean,field_draws = kernel.sample_from_gp(main_grid.reshape(2,-1).T,n_draws=8)
     field_mean = field_mean.reshape(res,res)
     field_draws = field_draws.reshape(8,res,res)
     plot_mean_and_draws(field_mean,field_draws)
-    '''
+    """
+
 #

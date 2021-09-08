@@ -44,9 +44,9 @@ class Kernel:
         _mean = self.form_posterior_mean(X_star)
         _cov = self.form_posterior_covariance(X_star)
 
-        _draws = np.random.normal(_mean, _cov, size=n_draws)
+        _draws = np.random.multivariate_normal(mean=_mean, cov=_cov, size=n_draws)
 
-        return _draws + epsilon
+        return _mean, _draws + epsilon
     #
 
     # --- this is an example kernel: a linear one!
