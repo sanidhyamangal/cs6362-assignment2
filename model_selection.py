@@ -8,19 +8,20 @@ class CVModelSelection:
         self.X = X
         self.y = y
         self.d,self.n = self.X.shape
+        self.folds_ = self.generate_folds(n_folds)
+
     #
 
     # --- generate `n_folds` number of folds
     def generate_folds(self,n_folds):
-        # using vlsplit to split the data in n_folds
-        _X_splits = np.vsplit(self.X, n_folds)
+        # create a range array for the shape of data
+        _range_array = np.arange(0, stop=self.d, step=1)
 
-        # since data is only is 1-D in Y hence, to apply vstack we need to add a simple axis X
-        # now once the vtsack is applied we revert the shape of splits to 1-D space
-        _y_splits = list(map(lambda x: x.reshape(-1), np.vsplit(np.reshape(self.y, newshape=[-1,1]),5)))
+        # first shuffle the range array and then split it into n_folds using split method
+        np.random.shuffle(_range_array)
 
-        # return stacked data (X_splits and y_splits)
-        return zip(_X_splits, _y_splits)
+        # return split indices of array which can later be used for slicing X and y
+        return np.array_split(_range_array, n_folds)
 
     #
 
@@ -28,6 +29,26 @@ class CVModelSelection:
     #   (1) the Kernel argument is a class, and should be used to construct an instance of a kernel
     #   (2) all_params is a list where each item corresponds to a single hyperparameter, and contains a range of values for the hyperparameter
     def grid_search(self,Kernel,all_params):
-        pass
+        print("Grid Search Commended on {} for kernel".format(all_params))
+        self.accuracy_mesh_ = np.empty(shape=[len(all_params['length_scales']), len(all_params['noise_variance'])])
+        
+        for idx_l_scale,length_scale in enumerate(all_params['length_scales']):
+            for idx_noise_variance, noise_variance in enumerate(all_params['noise_variance']):
+                print(f"Checking for following hyperpram sets, length_scale:{length_scale}, noise_variance:{noise_variance}")
+                _test_fold = np.random.randint(0,len(self.folds_), 1)[0]
+                _param_accuracy = []
+                for fold in range(len(self.folds_)):
+                    if fold == _test_fold:
+                        continue
+                    kernel = Kernel(self.X[self.folds_[fold]], self.y[self.folds_[fold]], length_scale, noise_variance)
+                    _,_predictions = kernel.sample_from_gp(self.X[self.folds_[_test_fold]], n_draws=1)
+                    _predictions = _predictions.reshape(-1)
+                    _param_accuracy.append(np.square(self.y[self.folds_[fold]]-_predictions).mean())
+            self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_param_accuracy)
+
+        _best_params = np.argwhere(self.accuracy_mesh_ == np.min(self.accuracy_mesh_))
+
+        return all_params['length_scales'][_best_params[0][0]],all_params['noise_variance'][_best_params[0][1]]
+
     #
 #

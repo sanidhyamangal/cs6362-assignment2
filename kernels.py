@@ -93,12 +93,4 @@ class SquaredExponentialKernel(Kernel):
         return _kernel
     #
 
-    # def form_posterior_mean(self, X_star):
-    #     # compute K_star
-    #     K_star = self.kernel(X_star,self.X)
-        
-    #     # compute mean
-    #     _mean = K_star@np.linalg.inv(self.K)*self.y
-
-
 #

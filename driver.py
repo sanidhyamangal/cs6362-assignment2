@@ -31,32 +31,36 @@ if __name__=='__main__':
     y = np.load('data/y_train.npy')
 
     # In this main you should:
-
     # (1) --- construct cross validation model selector
+    model_selector = CVModelSelection(X.T, y, 5)
 
     # (2) --- define hyperparameter ranges for grid search
+    hyper_params = {"length_scales":np.logspace(0.01, 2.0, num=100), "noise_variance":np.logspace(0.01,5, num=100)}
 
     # (3) --- run grid search: return best hyperparameters
+    length_scale, noise_variance = model_selector.grid_search(SquaredExponentialKernel, hyper_params)
+
+    print(f"The best Params are ls: {length_scale}, {noise_variance}")
 
     # (4) construct kernel on full dataset (X,y) from above found hyperparameters, compute posterior mean from X_test, call `evaluate_test` function above with mean
     X_test = np.load('data/X_test.npy')
 
-    kernel = SquaredExponentialKernel(X.T, y, 0.9, 3.98)
+    # kernel = SquaredExponentialKernel(X.T, y, 0.9, 0.7)
 
     # --- uncomment this out once you have your code working to see random draws (and mean) from the posterior
     # ---> the below assumes the presence of a `kernel` variable
-    """
-    res = 64
-    x_samples = np.linspace(-.9,.9,res)
-    y_samples = np.linspace(-.9,.9,res)
 
-    x_grid,y_grid = np.meshgrid(x_samples,y_samples,indexing='ij')
-    main_grid = np.stack((x_grid,y_grid),axis=0)
+    # res = 64
+    # x_samples = np.linspace(-.9,.9,res)
+    # y_samples = np.linspace(-.9,.9,res)
 
-    field_mean,field_draws = kernel.sample_from_gp(main_grid.reshape(2,-1).T,n_draws=8)
-    field_mean = field_mean.reshape(res,res)
-    field_draws = field_draws.reshape(8,res,res)
-    plot_mean_and_draws(field_mean,field_draws)
-    """
+    # x_grid,y_grid = np.meshgrid(x_samples,y_samples,indexing='ij')
+    # main_grid = np.stack((x_grid,y_grid),axis=0)
+
+    # field_mean,field_draws = kernel.sample_from_gp(main_grid.reshape(2,-1).T,n_draws=8)
+    # field_mean = field_mean.reshape(res,res)
+    # field_draws = field_draws.reshape(8,res,res)
+    # plot_mean_and_draws(field_mean,field_draws)
+    
 
 #
