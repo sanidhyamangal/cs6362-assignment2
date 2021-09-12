@@ -35,12 +35,13 @@ if __name__=='__main__':
     model_selector = CVModelSelection(X.T, y, 5)
 
     # (2) --- define hyperparameter ranges for grid search
-    hyper_params = {"length_scales":np.logspace(0.01, 2.0, num=100), "noise_variance":np.logspace(0.01,5, num=100)}
+    hyper_params = {"length_scales":np.geomspace(0.01, 2.0, num=100), "noise_variance":np.geomspace(0.01,5, num=100)}
 
     # (3) --- run grid search: return best hyperparameters
     length_scale, noise_variance = model_selector.grid_search(SquaredExponentialKernel, hyper_params)
 
     print(f"The best Params are ls: {length_scale}, {noise_variance}")
+    print(model_selector.accuracy_mesh_)
 
     # (4) construct kernel on full dataset (X,y) from above found hyperparameters, compute posterior mean from X_test, call `evaluate_test` function above with mean
     X_test = np.load('data/X_test.npy')
