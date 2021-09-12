@@ -45,8 +45,8 @@ class CVModelSelection:
                     _predictions = _predictions.reshape(-1)
                     _mse.append(np.square(self.y[self.folds_[fold]]-_predictions).mean())
 
-            append_the_data_into_csv("model_run_101.txt", data=f"{length_scale}\t{noise_variance}\t{np.mean(_mse)}\n")
-            self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_mse)
+                append_the_data_into_csv("model_run_101.txt", data=f"{length_scale}\t{noise_variance}\t{np.mean(_mse)}\n")
+                self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_mse)
 
         _best_params = np.argwhere(self.accuracy_mesh_ == np.min(self.accuracy_mesh_))
 
