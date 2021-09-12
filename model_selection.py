@@ -34,7 +34,6 @@ class CVModelSelection:
         
         for idx_l_scale,length_scale in enumerate(all_params['length_scales']):
             for idx_noise_variance, noise_variance in enumerate(all_params['noise_variance']):
-                print(f"Checking for following hyperpram sets, length_scale:{length_scale}, noise_variance:{noise_variance}")
                 _test_fold = np.random.randint(0,len(self.folds_), 1)[0]
                 _param_accuracy = []
                 for fold in range(len(self.folds_)):
@@ -44,6 +43,8 @@ class CVModelSelection:
                     _,_predictions = kernel.sample_from_gp(self.X[self.folds_[_test_fold]], n_draws=1)
                     _predictions = _predictions.reshape(-1)
                     _param_accuracy.append(np.square(self.y[self.folds_[fold]]-_predictions).mean())
+
+            print(f"Accuracy for following hyperpram sets, length_scale:{length_scale}, noise_variance:{noise_variance}, accuracy:{np.mean(_param_accuracy)}")
             self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_param_accuracy)
 
         _best_params = np.argwhere(self.accuracy_mesh_ == np.min(self.accuracy_mesh_))
