@@ -1,6 +1,5 @@
 import numpy as np
 import itertools
-from utils import append_the_data_into_csv
 
 
 # This class will handle model selection: really simple for now, just n-fold cross validation
