@@ -1,5 +1,6 @@
 import numpy as np
 import itertools
+from utils import append_the_data_into_csv
 
 # This class will handle model selection: really simple for now, just n-fold cross validation
 class CVModelSelection:
@@ -29,23 +30,23 @@ class CVModelSelection:
     #   (1) the Kernel argument is a class, and should be used to construct an instance of a kernel
     #   (2) all_params is a list where each item corresponds to a single hyperparameter, and contains a range of values for the hyperparameter
     def grid_search(self,Kernel,all_params):
-        print("Grid Search Commended on {} for kernel".format(all_params))
+        print("Grid Search Commenced on {} for kernel".format(all_params))
         self.accuracy_mesh_ = np.empty(shape=[len(all_params['length_scales']), len(all_params['noise_variance'])])
-        
+        append_the_data_into_csv("model_run_101.txt", "Length Scale\tNoise Variance\t MSE\n")       
         for idx_l_scale,length_scale in enumerate(all_params['length_scales']):
             for idx_noise_variance, noise_variance in enumerate(all_params['noise_variance']):
                 _test_fold = np.random.randint(0,len(self.folds_), 1)[0]
-                _param_accuracy = []
+                _mse = []
                 for fold in range(len(self.folds_)):
                     if fold == _test_fold:
                         continue
                     kernel = Kernel(self.X[self.folds_[fold]], self.y[self.folds_[fold]], length_scale, noise_variance)
                     _,_predictions = kernel.sample_from_gp(self.X[self.folds_[_test_fold]], n_draws=1)
                     _predictions = _predictions.reshape(-1)
-                    _param_accuracy.append(np.square(self.y[self.folds_[fold]]-_predictions).mean())
+                    _mse.append(np.square(self.y[self.folds_[fold]]-_predictions).mean())
 
-            print(f"Accuracy for following hyperpram sets, length_scale:{length_scale}, noise_variance:{noise_variance}, accuracy:{np.mean(_param_accuracy)}")
-            self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_param_accuracy)
+            append_the_data_into_csv("model_run_101.txt", data=f"{length_scale}\t{noise_variance}\t{np.mean(_mse)}\n")
+            self.accuracy_mesh_[idx_l_scale, idx_noise_variance] = np.mean(_mse)
 
         _best_params = np.argwhere(self.accuracy_mesh_ == np.min(self.accuracy_mesh_))
 
